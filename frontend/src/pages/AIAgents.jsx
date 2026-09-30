@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { MessageCircle, Zap, BookOpen, CheckCircle, Play, AlertCircle } from 'lucide-react'
 import { agents } from '../data/agents'
-import AnalysisResults from '../components/analysis/AnalysisResults'
 import apiService from '../services/api'
+import AnalysisResults from '../components/analysis/AnalysisResults'
+import PlanResults from '../components/plan/PlanResults'
 
 function AIAgents() {
   const [projects, setProjects] = useState([])
@@ -10,21 +11,26 @@ function AIAgents() {
   const [runs, setRuns] = useState([])
   const [analysis, setAnalysis] = useState(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [plan, setPlan] = useState(null)
+  const [isPlanning, setIsPlanning] = useState(false)
   const [error, setError] = useState('')
 
   const loadAgentState = async (projectId) => {
     if (!projectId) return
     try {
-      const [runList, result] = await Promise.all([
+      const [runList, result, planResult] = await Promise.all([
         apiService.requirements.getRuns(projectId),
         apiService.requirements.getAnalysis(projectId),
+        apiService.projectManager.get(projectId).catch(() => null),
       ])
       setRuns(runList)
       setAnalysis(result)
+      setPlan(planResult)
       setError('')
     } catch (requestError) {
       setRuns([])
       setAnalysis(null)
+      setPlan(null)
       if (!requestError.message.includes('404')) setError(requestError.message)
     }
   }
@@ -40,8 +46,17 @@ function AIAgents() {
 
   useEffect(() => { loadAgentState(selectedProjectId) }, [selectedProjectId])
 
+  // If a plan is still being generated (for example after a page reload), keep checking.
+  useEffect(() => {
+    if (plan?.status !== 'PROCESSING' || isPlanning) return undefined
+    const timer = setInterval(() => loadAgentState(selectedProjectId), 4000)
+    return () => clearInterval(timer)
+  }, [plan?.status, isPlanning, selectedProjectId])
+
   const requirementRun = runs.find((run) => run.agent_name === 'Requirements Analyst AI')
   const requirementStatus = requirementRun?.status || 'READY'
+  const requirementsReady = analysis?.latest_agent_run?.status === 'COMPLETED'
+  const planStatus = isPlanning ? 'PROCESSING' : (plan?.status && plan.status !== 'NOT_GENERATED' ? plan.status : 'READY')
 
   const handleAnalyze = async () => {
     if (!selectedProjectId) {
@@ -62,6 +77,21 @@ function AIAgents() {
     }
   }
 
+  const handleGeneratePlan = async () => {
+    if (!selectedProjectId) return
+    setIsPlanning(true)
+    setError('')
+    try {
+      setPlan(await apiService.projectManager.run(selectedProjectId))
+      await loadAgentState(selectedProjectId)
+    } catch (requestError) {
+      setError(requestError.message)
+      await loadAgentState(selectedProjectId)
+    } finally {
+      setIsPlanning(false)
+    }
+  }
+
   const getAgentIcon = (iconName) => ({
     requirement: <BookOpen className="w-8 h-8" />,
     project: <Zap className="w-8 h-8" />,
@@ -72,7 +102,7 @@ function AIAgents() {
   return (
     <div>
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-        <div><h1 className="text-3xl font-bold text-text-primary mb-2">AI Agents Hub</h1><p className="text-text-secondary">Run the Requirements Analyst against your project SRS</p></div>
+        <div><h1 className="text-3xl font-bold text-text-primary mb-2">AI Agents Hub</h1><p className="text-text-secondary">Run the Requirements Analyst on your SRS, then the Project Manager to plan the work</p></div>
         <label className="text-sm text-text-secondary">Project
           <select value={selectedProjectId} onChange={(e) => setSelectedProjectId(e.target.value)} className="input-field ml-3">
             {!projects.length && <option value="">No projects</option>}
@@ -86,11 +116,13 @@ function AIAgents() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {agents.map((agent) => {
           const isRequirements = agent.icon === 'requirement'
+          const isProject = agent.icon === 'project'
+          const status = isRequirements ? requirementStatus : isProject ? planStatus : 'NOT IMPLEMENTED'
           return (
             <div key={agent.id} className="card p-6 flex flex-col">
               <div className="flex items-center justify-between mb-4">
                 <div className="bg-primary-light p-3 rounded-lg text-primary">{getAgentIcon(agent.icon)}</div>
-                <div className={`w-3 h-3 rounded-full ${isRequirements && requirementStatus === 'FAILED' ? 'bg-red-500' : isRequirements && requirementStatus === 'PROCESSING' ? 'bg-yellow-500' : 'bg-green-500'}`} />
+                <div className={`w-3 h-3 rounded-full ${(isRequirements || isProject) && status === 'FAILED' ? 'bg-red-500' : (isRequirements || isProject) && status === 'PROCESSING' ? 'bg-yellow-500' : 'bg-green-500'}`} />
               </div>
               <h3 className="font-bold text-text-primary mb-2">{agent.name}</h3>
               <p className="text-text-secondary text-sm mb-4 flex-1">{agent.description}</p>
@@ -98,8 +130,14 @@ function AIAgents() {
                 <button onClick={handleAnalyze} disabled={isAnalyzing || !selectedProjectId || requirementStatus === 'PROCESSING'} className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-60">
                   <Play className="w-4 h-4" /> {isAnalyzing || requirementStatus === 'PROCESSING' ? 'Analyzing...' : requirementStatus === 'COMPLETED' ? 'Run Again' : 'Analyze Requirements'}
                 </button>
+              ) : isProject ? (
+                <button onClick={handleGeneratePlan} disabled={isPlanning || !selectedProjectId || !requirementsReady || planStatus === 'PROCESSING'} className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-60">
+                  <Play className="w-4 h-4" /> {isPlanning || planStatus === 'PROCESSING' ? 'Generating plan...' : plan?.plan ? 'Regenerate Plan' : 'Generate Project Plan'}
+                </button>
               ) : <button disabled className="btn-secondary w-full opacity-60">Available later</button>}
-              <span className="text-xs text-text-secondary mt-2 text-center">Status: {isRequirements ? requirementStatus : 'NOT IMPLEMENTED'}</span>
+              <span className="text-xs text-text-secondary mt-2 text-center">
+                {isProject && !requirementsReady ? 'Run the Requirements Analyst first' : `Status: ${status}`}
+              </span>
             </div>
           )
         })}
@@ -118,13 +156,20 @@ function AIAgents() {
         </div>
       )}
 
+      {plan?.plan && (
+        <div className="card p-6 mb-8">
+          <h2 className="text-lg font-bold text-text-primary mb-4">Project Plan</h2>
+          <PlanResults plan={plan} />
+        </div>
+      )}
+
       <div className="card p-6">
         <h2 className="text-lg font-bold text-text-primary mb-6">Agent Activity</h2>
-        {!runs.length && <p className="text-sm text-text-secondary">No Requirements Analyst runs for this project yet.</p>}
+        {!runs.length && <p className="text-sm text-text-secondary">No agent runs for this project yet.</p>}
         <div className="space-y-4">
           {runs.map((run) => (
             <div key={run.id} className="flex items-start gap-4 pb-4 border-b border-border-light last:border-b-0">
-              <div className="flex-1"><p className="font-medium text-text-primary text-sm">{run.agent_name}</p><p className="text-text-secondary text-sm mt-1">{run.error || `${run.status}${run.output_summary?.requirements_generated ? ` — ${run.output_summary.requirements_generated} requirements generated` : ''}`}</p></div>
+              <div className="flex-1"><p className="font-medium text-text-primary text-sm">{run.agent_name}</p><p className="text-text-secondary text-sm mt-1">{run.error || `${run.status}${run.output_summary?.requirements_generated ? ` — ${run.output_summary.requirements_generated} requirements generated` : ''}${run.output_summary?.tasks_generated ? ` — ${run.output_summary.tasks_generated} tasks planned` : ''}`}</p></div>
               <p className="text-xs text-text-secondary whitespace-nowrap">{run.completed_at ? new Date(run.completed_at).toLocaleString() : 'In progress'}</p>
             </div>
           ))}

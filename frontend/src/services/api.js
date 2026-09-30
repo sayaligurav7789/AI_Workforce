@@ -48,6 +48,15 @@ export const apiService = {
     getUserStories: (projectId) => request(`/projects/${projectId}/user-stories`),
     getAcceptanceCriteria: (projectId) => request(`/projects/${projectId}/acceptance-criteria`),
   },
+  projectManager: {
+    run: (projectId) => request(`/projects/${projectId}/project-manager/run`, { method: 'POST' }),
+    get: (projectId) => request(`/projects/${projectId}/project-manager`),
+    getTasks: (projectId) => request(`/projects/${projectId}/tasks`),
+    getSprints: (projectId) => request(`/projects/${projectId}/sprints`),
+    getMilestones: (projectId) => request(`/projects/${projectId}/milestones`),
+    getRisks: (projectId) => request(`/projects/${projectId}/risks`),
+    getDependencies: (projectId) => request(`/projects/${projectId}/dependencies`),
+  },
   rag: {
     query: (projectId, query) =>
       request(`/projects/${projectId}/rag/query`, {

@@ -3,7 +3,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .api import analysis, auth, documents, projects
+from .api import analysis, auth, documents, project_manager, projects
 from .config import get_settings
 from .database import init_db
 
@@ -12,8 +12,8 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 
 app = FastAPI(
-    title="AI Workforce Requirements Analyst API",
-    description="Project-scoped SRS processing, RAG, and Requirements Analyst AI.",
+    title="AI Workforce API",
+    description="Project-scoped SRS processing, RAG, Requirements Analyst AI and Project Manager AI.",
     version="1.0.0",
 )
 app.add_middleware(
@@ -27,6 +27,7 @@ app.include_router(auth.router)
 app.include_router(projects.router)
 app.include_router(documents.router)
 app.include_router(analysis.router)
+app.include_router(project_manager.router)
 
 
 @app.on_event("startup")

@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from typing import Any
 
-from sqlalchemy import Date, DateTime, ForeignKey, Integer, JSON, String, Text, func
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, JSON, String, Text, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .database import Base
@@ -47,6 +47,7 @@ class Project(Base):
     constraints: Mapped[list["Constraint"]] = relationship(back_populates="project", cascade="all, delete-orphan")
     risks: Mapped[list["Risk"]] = relationship(back_populates="project", cascade="all, delete-orphan")
     agent_runs: Mapped[list["AgentRun"]] = relationship(back_populates="project", cascade="all, delete-orphan")
+    pm_plans: Mapped[list["PMPlan"]] = relationship(back_populates="project", cascade="all, delete-orphan")
 
 
 class Document(Base):
@@ -203,3 +204,142 @@ class AgentRun(Base):
     error: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     project: Mapped[Project] = relationship(back_populates="agent_runs")
+
+
+# --- Project Manager AI -----------------------------------------------------
+# Tables are prefixed "pm_" because `dependencies` and `risks` already belong to
+# the Requirements Analyst. Every row carries project_id so queries can always be
+# scoped to a single project.
+
+
+class PMPlan(Base):
+    __tablename__ = "pm_plans"
+    __table_args__ = (UniqueConstraint("project_id", name="uq_pm_plans_project"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    project_id: Mapped[int] = mapped_column(ForeignKey("projects.id"), index=True)
+    agent_run_id: Mapped[int | None] = mapped_column(ForeignKey("agent_runs.id"), nullable=True)
+    requirements_run_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    execution_summary: Mapped[str] = mapped_column(Text)
+    definition_of_done: Mapped[list[str]] = mapped_column(JSON, default=list)
+    assumptions: Mapped[list[str]] = mapped_column(JSON, default=list)
+    execution_order: Mapped[list[str]] = mapped_column(JSON, default=list)
+    warnings: Mapped[list[str]] = mapped_column(JSON, default=list)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    project: Mapped[Project] = relationship(back_populates="pm_plans")
+    epics: Mapped[list["PMEpic"]] = relationship(back_populates="plan", cascade="all, delete-orphan")
+    tasks: Mapped[list["PMTask"]] = relationship(back_populates="plan", cascade="all, delete-orphan")
+    task_dependencies: Mapped[list["PMTaskDependency"]] = relationship(
+        back_populates="plan", cascade="all, delete-orphan"
+    )
+    sprints: Mapped[list["PMSprint"]] = relationship(back_populates="plan", cascade="all, delete-orphan")
+    milestones: Mapped[list["PMMilestone"]] = relationship(back_populates="plan", cascade="all, delete-orphan")
+    risks: Mapped[list["PMRisk"]] = relationship(back_populates="plan", cascade="all, delete-orphan")
+
+
+class PMEpic(Base):
+    __tablename__ = "pm_epics"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    project_id: Mapped[int] = mapped_column(ForeignKey("projects.id"), index=True)
+    plan_id: Mapped[int] = mapped_column(ForeignKey("pm_plans.id"), index=True)
+    epic_id: Mapped[str] = mapped_column(String(40))
+    title: Mapped[str] = mapped_column(String(300))
+    description: Mapped[str] = mapped_column(Text)
+    priority: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    related_requirement_ids: Mapped[list[str]] = mapped_column(JSON, default=list)
+
+    plan: Mapped[PMPlan] = relationship(back_populates="epics")
+
+
+class PMTask(Base):
+    __tablename__ = "pm_tasks"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    project_id: Mapped[int] = mapped_column(ForeignKey("projects.id"), index=True)
+    plan_id: Mapped[int] = mapped_column(ForeignKey("pm_plans.id"), index=True)
+    task_id: Mapped[str] = mapped_column(String(40))
+    epic_id: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    title: Mapped[str] = mapped_column(String(300))
+    description: Mapped[str] = mapped_column(Text)
+    related_story_id: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    related_requirement_id: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    related_artifact_ids: Mapped[list[str]] = mapped_column(JSON, default=list)
+    priority: Mapped[str] = mapped_column(String(20))
+    story_points: Mapped[int] = mapped_column(Integer)
+    suggested_role: Mapped[str] = mapped_column(String(60))
+    acceptance_criteria: Mapped[list[str]] = mapped_column(JSON, default=list)
+    sprint_id: Mapped[str] = mapped_column(String(40))
+    status: Mapped[str] = mapped_column(String(30), default="TODO")
+    grounding: Mapped[str] = mapped_column(String(20))
+    rationale: Mapped[str | None] = mapped_column(Text, nullable=True)
+    source_references: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list)
+    execution_index: Mapped[int] = mapped_column(Integer, default=0)
+
+    plan: Mapped[PMPlan] = relationship(back_populates="tasks")
+
+
+class PMTaskDependency(Base):
+    __tablename__ = "pm_task_dependencies"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    project_id: Mapped[int] = mapped_column(ForeignKey("projects.id"), index=True)
+    plan_id: Mapped[int] = mapped_column(ForeignKey("pm_plans.id"), index=True)
+    task_id: Mapped[str] = mapped_column(String(40))
+    depends_on_task_id: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    dependency_type: Mapped[str] = mapped_column(String(30))
+    description: Mapped[str] = mapped_column(Text)
+    is_blocking: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    plan: Mapped[PMPlan] = relationship(back_populates="task_dependencies")
+
+
+class PMSprint(Base):
+    __tablename__ = "pm_sprints"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    project_id: Mapped[int] = mapped_column(ForeignKey("projects.id"), index=True)
+    plan_id: Mapped[int] = mapped_column(ForeignKey("pm_plans.id"), index=True)
+    sprint_id: Mapped[str] = mapped_column(String(40))
+    sequence: Mapped[int] = mapped_column(Integer)
+    name: Mapped[str] = mapped_column(String(200))
+    goal: Mapped[str] = mapped_column(Text)
+    start_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    end_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    capacity_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    plan: Mapped[PMPlan] = relationship(back_populates="sprints")
+
+
+class PMMilestone(Base):
+    __tablename__ = "pm_milestones"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    project_id: Mapped[int] = mapped_column(ForeignKey("projects.id"), index=True)
+    plan_id: Mapped[int] = mapped_column(ForeignKey("pm_plans.id"), index=True)
+    milestone_id: Mapped[str] = mapped_column(String(40))
+    sequence: Mapped[int] = mapped_column(Integer)
+    title: Mapped[str] = mapped_column(String(300))
+    description: Mapped[str] = mapped_column(Text)
+    task_ids: Mapped[list[str]] = mapped_column(JSON, default=list)
+    target_sprint_id: Mapped[str | None] = mapped_column(String(40), nullable=True)
+
+    plan: Mapped[PMPlan] = relationship(back_populates="milestones")
+
+
+class PMRisk(Base):
+    __tablename__ = "pm_risks"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    project_id: Mapped[int] = mapped_column(ForeignKey("projects.id"), index=True)
+    plan_id: Mapped[int] = mapped_column(ForeignKey("pm_plans.id"), index=True)
+    risk_id: Mapped[str] = mapped_column(String(40))
+    title: Mapped[str] = mapped_column(String(300))
+    description: Mapped[str] = mapped_column(Text)
+    impact: Mapped[str] = mapped_column(String(20))
+    likelihood: Mapped[str] = mapped_column(String(20))
+    mitigation: Mapped[str] = mapped_column(Text)
+    related_tasks: Mapped[list[str]] = mapped_column(JSON, default=list)
+
+    plan: Mapped[PMPlan] = relationship(back_populates="risks")

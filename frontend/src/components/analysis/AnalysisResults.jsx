@@ -11,7 +11,11 @@ const TABS = [
   { key: 'risks', label: 'Risks' },
 ]
 
-const LEVEL_STYLES = { HIGH: 'badge-danger', MEDIUM: 'badge-warning', LOW: 'badge-success' }
+const LEVEL_STYLES = {
+  HIGH: 'badge-danger',
+  MEDIUM: 'badge-warning',
+  LOW: 'badge-success',
+}
 
 function Level({ value, prefix }) {
   if (!value) return null
@@ -22,8 +26,8 @@ function Sources({ refs }) {
   if (!refs?.length) return null
   return (
     <div className="flex flex-wrap gap-2 mt-3">
-      {refs.map((ref, i) => (
-        <span key={i} className="text-xs bg-bg-light text-text-secondary px-2 py-1 rounded" title={ref.source}>
+      {refs.map((ref, index) => (
+        <span key={index} className="text-xs bg-bg-light text-text-secondary px-2 py-1 rounded" title={ref.source}>
           {ref.document} · p.{ref.page}
         </span>
       ))}
@@ -105,7 +109,7 @@ function AnalysisResults({ analysis }) {
         {summary.scope && <p className="text-sm text-text-secondary mt-2"><span className="font-medium text-text-primary">Scope: </span>{summary.scope}</p>}
         {!!summary.actors?.length && (
           <div className="flex flex-wrap gap-2 mt-3">
-            {summary.actors.map((a) => <span key={a} className="badge bg-purple-100 text-primary">{a}</span>)}
+            {summary.actors.map((actor) => <span key={actor} className="badge bg-purple-100 text-primary">{actor}</span>)}
           </div>
         )}
       </div>

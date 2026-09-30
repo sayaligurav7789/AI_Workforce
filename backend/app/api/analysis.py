@@ -137,7 +137,11 @@ def rag_query(
 def _build_analysis(db: Session, project: Project) -> AnalysisResponse:
     latest_run = db.scalar(
         select(AgentRun)
-        .where(AgentRun.project_id == project.id, AgentRun.status == "COMPLETED")
+        .where(
+            AgentRun.project_id == project.id,
+            AgentRun.agent_name == "Requirements Analyst AI",
+            AgentRun.status == "COMPLETED",
+        )
         .order_by(AgentRun.completed_at.desc())
     )
     summary_data = (latest_run.output_summary or {}).get("project_summary", {}) if latest_run else {}

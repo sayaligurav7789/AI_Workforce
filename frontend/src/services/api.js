@@ -1,0 +1,60 @@
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
+
+async function request(path, options = {}) {
+  const headers = new Headers(options.headers || {})
+  const token = localStorage.getItem('accessToken')
+  if (token) headers.set('Authorization', `Bearer ${token}`)
+  if (options.body && !(options.body instanceof FormData)) {
+    headers.set('Content-Type', 'application/json')
+  }
+
+  const response = await fetch(`${API_BASE_URL}${path}`, { ...options, headers })
+  let payload = null
+  try {
+    payload = await response.json()
+  } catch {
+    payload = null
+  }
+  if (!response.ok) {
+    throw new Error(payload?.detail || `Request failed (${response.status})`)
+  }
+  return payload
+}
+
+export const apiService = {
+  auth: {
+    login: (data) => request('/auth/login', { method: 'POST', body: JSON.stringify(data) }),
+    register: (data) => request('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
+    me: () => request('/auth/me'),
+  },
+  projects: {
+    getAll: () => request('/projects'),
+    getById: (id) => request(`/projects/${id}`),
+    create: (data) => request('/projects', { method: 'POST', body: JSON.stringify(data) }),
+  },
+  documents: {
+    getForProject: (projectId) => request(`/projects/${projectId}/documents`),
+    upload: (file, projectId) => {
+      const formData = new FormData()
+      formData.append('file', file)
+      return request(`/projects/${projectId}/documents`, { method: 'POST', body: formData })
+    },
+  },
+  requirements: {
+    analyze: (projectId) => request(`/projects/${projectId}/analyze`, { method: 'POST' }),
+    getAnalysis: (projectId) => request(`/projects/${projectId}/analysis`),
+    getRuns: (projectId) => request(`/projects/${projectId}/agent-runs`),
+    getRequirements: (projectId) => request(`/projects/${projectId}/requirements`),
+    getUserStories: (projectId) => request(`/projects/${projectId}/user-stories`),
+    getAcceptanceCriteria: (projectId) => request(`/projects/${projectId}/acceptance-criteria`),
+  },
+  rag: {
+    query: (projectId, query) =>
+      request(`/projects/${projectId}/rag/query`, {
+        method: 'POST',
+        body: JSON.stringify({ query }),
+      }),
+  },
+}
+
+export default apiService

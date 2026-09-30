@@ -1,0 +1,1 @@
+- [Gemini model availability](gemini-model-availability.md) — validate the account's live model list when a configured Gemini model is retired or overloaded.

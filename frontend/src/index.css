@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f7ff;
+  color: #1a1a1a;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f3e8ff;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #5B2DD8;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4b1fa8;
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors font-medium;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-200 text-text-primary px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors font-medium;
+  }
+
+  .btn-outline {
+    @apply border-2 border-primary text-primary px-4 py-2 rounded-lg hover:bg-primary-light transition-colors font-medium;
+  }
+
+  .card {
+    @apply bg-card-bg rounded-lg border border-border-light shadow-sm;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-2 border border-border-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+  }
+
+  .table-header {
+    @apply bg-gray-50 border-b border-border-light font-medium text-text-secondary text-sm;
+  }
+
+  .badge {
+    @apply px-3 py-1 rounded-full text-xs font-medium;
+  }
+
+  .badge-success {
+    @apply bg-green-100 text-green-800;
+  }
+
+  .badge-warning {
+    @apply bg-yellow-100 text-yellow-800;
+  }
+
+  .badge-danger {
+    @apply bg-red-100 text-red-800;
+  }
+
+  .badge-info {
+    @apply bg-blue-100 text-blue-800;
+  }
+}

@@ -1,0 +1,1713 @@
+You are the lead engineer responsible for implementing ONE complete and production-style module of my existing project:
+
+AI Workforce
+
+============================================================
+CRITICAL SCOPE — READ THIS FIRST
+============================================================
+
+I have ALREADY BUILT the frontend.
+
+The existing React + Vite + Tailwind frontend is NOT the task.
+
+DO NOT rebuild the frontend.
+
+DO NOT create a new frontend.
+
+DO NOT replace the existing UI.
+
+DO NOT redesign the existing UI.
+
+DO NOT recreate existing pages.
+
+DO NOT create duplicate pages.
+
+DO NOT spend the majority of your work on frontend styling.
+
+The existing frontend already contains the product UI, including:
+
+- Login
+- Dashboard
+- Projects
+- Tasks
+- AI Agents
+- AI Chat
+- Documents
+- Reports & Analytics
+- Settings / Integrations
+
+Your job is to build the REAL BACKEND + AI functionality behind the existing frontend and connect the existing UI to it.
+
+Only make minimal frontend modifications when necessary to connect the existing components to the backend.
+
+============================================================
+ONLY MODULE TO IMPLEMENT
+============================================================
+
+Implement ONLY:
+
+# REQUIREMENTS ANALYST AI
+
+Do NOT implement these yet:
+
+- Project Manager AI
+- Developer AI
+- QA AI
+- Developer ↔ QA loop
+- Git automation
+- GitHub integration
+- Jira
+- Slack
+- n8n
+- automatic code generation
+- code execution
+- autonomous coding
+- advanced multi-agent orchestration
+
+Those will be implemented later.
+
+For this milestone, the complete workflow must be:
+
+SRS PDF
+   ↓
+PDF Extraction
+   ↓
+Document Chunking
+   ↓
+Embeddings
+   ↓
+ChromaDB
+   ↓
+Project-specific RAG
+   ↓
+Requirements Analyst AI
+   ↓
+Structured Requirements
+   ↓
+User Stories
+   ↓
+Acceptance Criteria
+   ↓
+Priorities / Dependencies
+   ↓
+Ambiguities / Constraints / Risks
+   ↓
+PostgreSQL
+   ↓
+Existing React Frontend
+
+The module must actually work end-to-end.
+
+Do NOT create a mockup.
+
+Do NOT hardcode AI responses.
+
+Do NOT hardcode user stories.
+
+Do NOT fake RAG.
+
+Do NOT fake document analysis.
+
+============================================================
+1. FIRST — INSPECT THE EXISTING FRONTEND
+============================================================
+
+Before writing backend code, inspect the existing repository thoroughly.
+
+The repository is expected to contain something similar to:
+
+AI-WorkForce/
+│
+├── frontend/
+│   ├── src/
+│   ├── public/
+│   ├── package.json
+│   ├── vite.config.js
+│   ├── tailwind.config.js
+│   └── ...
+│
+└── .gitignore
+
+DO NOT modify the frontend during the initial inspection.
+
+Inspect:
+
+- package.json
+- src/
+- routing
+- pages
+- components
+- API clients/services
+- authentication logic
+- project pages
+- Documents page
+- AI Agents page
+- AI Chat page
+- Tasks page
+- Reports page
+- loading states
+- error states
+- forms
+- buttons
+- existing mock data
+- existing API calls
+- existing data structures
+
+Determine exactly how the existing frontend currently works.
+
+IMPORTANT:
+
+If an existing component already provides functionality, reuse it.
+
+Do NOT create a second version of the same UI.
+
+For example:
+
+If the Documents page already has an SRS/document upload component:
+
+USE IT.
+
+Do not create another document upload page.
+
+If the AI Agents page already contains a Requirements Analyst AI card:
+
+USE IT.
+
+Do not create another Agents page.
+
+If there is already a project selector:
+
+USE IT.
+
+Do not create another project selector.
+
+If there is already an API service layer:
+
+EXTEND IT.
+
+Do not create an unnecessary second API client.
+
+============================================================
+2. FRONTEND PRIORITY
+============================================================
+
+The frontend is already built.
+
+Spend approximately:
+
+80–90% of implementation effort on:
+
+- backend
+- PostgreSQL
+- document processing
+- embeddings
+- ChromaDB
+- RAG
+- LLM integration
+- Requirements Analyst AI
+- API
+- testing
+
+Spend approximately:
+
+10–20% on frontend changes ONLY where necessary for integration.
+
+Do NOT waste Replit Agent quota on:
+
+- visual redesign
+- animations
+- new themes
+- landing pages
+- dashboard redesign
+- responsive redesign unless something is actually broken
+- new navigation
+- unnecessary UI components
+
+============================================================
+3. PRODUCT CONTEXT
+============================================================
+
+AI Workforce is an AI-powered platform for SDLC automation.
+
+The long-term workflow is:
+
+CUSTOMER REQUIREMENTS
+        ↓
+SRS
+        ↓
+REQUIREMENTS ANALYST AI
+        ↓
+USER STORIES
+        ↓
+ACCEPTANCE CRITERIA
+        ↓
+PROJECT MANAGER AI
+        ↓
+DEVELOPMENT TASKS
+        ↓
+DEVELOPER AI
+        ↓
+TESTING
+        ↓
+QA AI
+
+For this milestone, STOP after Requirements Analyst AI.
+
+The Requirements Analyst is responsible for understanding what the customer actually requested.
+
+It must transform raw customer requirements into structured software requirements.
+
+============================================================
+4. TECHNOLOGY STACK
+============================================================
+
+Backend:
+
+- Python
+- FastAPI
+- SQLAlchemy
+- PostgreSQL
+- Pydantic
+- JWT authentication
+
+AI / RAG:
+
+- LangChain where useful
+- ChromaDB
+- embeddings
+- LLM provider abstraction
+
+Document processing:
+
+- PyPDF or pypdf
+
+Testing:
+
+- pytest
+
+Do not introduce unnecessary technologies.
+
+Keep the architecture modular so future modules can be added later.
+
+============================================================
+5. LLM PROVIDER
+============================================================
+
+For this Replit implementation, use Gemini as the initial LLM provider.
+
+Use an abstraction:
+
+LLMProvider
+    ↓
+GeminiProvider
+
+Do NOT hard-code Gemini directly throughout the application.
+
+The Requirements Analyst agent should depend on the provider abstraction.
+
+Use:
+
+GEMINI_API_KEY
+
+from environment variables / Replit Secrets.
+
+NEVER hardcode the API key.
+
+Create:
+
+backend/.env.example
+
+containing:
+
+DATABASE_URL=
+JWT_SECRET=
+GEMINI_API_KEY=
+CHROMA_PERSIST_DIRECTORY=
+CORS_ORIGINS=
+
+If GEMINI_API_KEY is missing:
+
+- do not generate fake results
+- do not pretend the agent succeeded
+- return a clear configuration error
+- log the problem appropriately
+
+The architecture must allow another provider such as Ollama/OpenAI to be added later without rewriting the Requirements Analyst.
+
+============================================================
+6. DATABASE
+============================================================
+
+Use PostgreSQL with SQLAlchemy.
+
+Create proper relational models.
+
+For this module, implement at minimum:
+
+User
+Project
+Document
+Requirement
+UserStory
+AcceptanceCriteria
+AgentRun
+
+Relationships:
+
+Project
+ ├── Documents
+ ├── Requirements
+ ├── User Stories
+ ├── Acceptance Criteria
+ └── Agent Runs
+
+Requirement
+ └── User Stories
+       └── Acceptance Criteria
+
+Do NOT store the entire project as one giant JSON object.
+
+Important generated entities must have proper relational records.
+
+Use Pydantic schemas for API validation and response models.
+
+============================================================
+7. AUTHENTICATION
+============================================================
+
+If the existing frontend expects authentication, implement the required backend authentication.
+
+Endpoints:
+
+POST /api/auth/register
+POST /api/auth/login
+GET /api/auth/me
+
+Use:
+
+- JWT
+- secure password hashing
+
+Never store plaintext passwords.
+
+Protect:
+
+- projects
+- documents
+- analysis
+- requirements
+- user stories
+- acceptance criteria
+- RAG queries
+
+with authentication.
+
+Users must only access projects they are authorized to access.
+
+============================================================
+8. PROJECT API
+============================================================
+
+Implement only the project functionality required for this module.
+
+Endpoints:
+
+POST /api/projects
+GET /api/projects
+GET /api/projects/{project_id}
+
+If the existing frontend already has project API expectations, preserve compatibility wherever possible.
+
+Do not unnecessarily redesign the API if the frontend already expects a particular structure.
+
+============================================================
+9. SRS DOCUMENT UPLOAD
+============================================================
+
+The existing Documents page is the entry point.
+
+Use the existing Documents UI.
+
+Do NOT create a new document page.
+
+Implement:
+
+POST /api/projects/{project_id}/documents
+
+Workflow:
+
+Existing Documents UI
+        ↓
+Upload SRS PDF
+        ↓
+FastAPI
+        ↓
+Validation
+        ↓
+PDF extraction
+        ↓
+Chunking
+        ↓
+Embeddings
+        ↓
+ChromaDB
+
+Validate:
+
+- PDF format
+- maximum file size
+- readable PDF
+- empty PDF
+- corrupted PDF
+- PDF with no extractable text
+
+Store document metadata in PostgreSQL.
+
+At minimum:
+
+Document:
+
+- id
+- project_id
+- filename
+- file_type
+- file_size
+- page_count
+- upload_time
+- processing_status
+- error_message if applicable
+
+Possible processing statuses:
+
+UPLOADED
+PROCESSING
+COMPLETED
+FAILED
+
+Do not show COMPLETED unless processing actually completed.
+
+============================================================
+10. PDF EXTRACTION
+============================================================
+
+Use pypdf/PyPDF.
+
+Extract actual text from the uploaded PDF.
+
+Preserve page-level information.
+
+Each extracted page should retain:
+
+- document ID
+- page number
+- text
+- filename
+
+The system should be able to tell the AI:
+
+"This statement came from page 5 of requirements.pdf."
+
+Do NOT invent page numbers.
+
+Handle extraction errors properly.
+
+If a PDF contains no extractable text, return a useful error rather than pretending it was processed.
+
+============================================================
+11. DOCUMENT CHUNKING
+============================================================
+
+After PDF extraction:
+
+PDF
+ ↓
+Text
+ ↓
+Cleaning
+ ↓
+Chunking
+ ↓
+Embeddings
+
+Use a reasonable chunk size and overlap.
+
+Do not create extremely large chunks.
+
+Every chunk must preserve metadata:
+
+project_id
+document_id
+page
+filename
+source
+
+If section information can be reliably determined, preserve it.
+
+Do NOT invent section names.
+
+============================================================
+12. EMBEDDINGS
+============================================================
+
+Implement real embeddings.
+
+The embedding implementation must be configurable.
+
+Do not hardcode the entire application around one embedding implementation.
+
+Document which embedding model/provider is being used.
+
+The same embedding strategy must be used consistently for:
+
+- indexing
+- retrieval
+
+If the embedding provider requires an API key, use environment variables.
+
+Do not expose secrets to the frontend.
+
+============================================================
+13. PROJECT-SPECIFIC CHROMADB
+============================================================
+
+Implement REAL ChromaDB storage.
+
+Project data must be isolated.
+
+Example:
+
+Project A
+  ↓
+Project A SRS chunks
+  ↓
+Project A Chroma collection
+
+Project B
+  ↓
+Project B SRS chunks
+  ↓
+Project B Chroma collection
+
+Project A must NEVER retrieve Project B's information.
+
+Every vector record must include metadata such as:
+
+project_id
+document_id
+page
+filename
+source
+
+Use the project ID as part of the isolation strategy.
+
+============================================================
+14. RAG QUERY
+============================================================
+
+Implement:
+
+POST /api/projects/{project_id}/rag/query
+
+Request:
+
+{
+  "query": "What are the authentication requirements?"
+}
+
+The backend should:
+
+1. authenticate the user
+2. verify project access
+3. retrieve relevant chunks ONLY from that project
+4. pass retrieved context to the LLM
+5. return a grounded response
+6. return source references
+
+Response structure should contain:
+
+{
+  "answer": "...",
+  "sources": [
+    {
+      "document": "requirements.pdf",
+      "page": 4,
+      "source": "..."
+    }
+  ]
+}
+
+Do NOT create fake sources.
+
+The source references must correspond to actual retrieved chunks.
+
+============================================================
+15. REQUIREMENTS ANALYST AI
+============================================================
+
+Create:
+
+requirements_agent.py
+
+This is the central AI component.
+
+Input:
+
+- project information
+- SRS context
+- retrieved RAG chunks
+- source metadata
+
+The agent must analyze the customer's requirements.
+
+It must NOT simply summarize the PDF.
+
+It must transform requirements into structured software-analysis artifacts.
+
+============================================================
+16. REQUIREMENTS ANALYST OUTPUT
+============================================================
+
+The agent must produce:
+
+1. Project Summary
+
+2. Functional Requirements
+
+3. Non-Functional Requirements
+
+4. User Stories
+
+5. Acceptance Criteria
+
+6. Priorities
+
+7. Dependencies
+
+8. Ambiguities
+
+9. Constraints
+
+10. Risks
+
+11. Source References
+
+Use structured Pydantic output.
+
+============================================================
+17. FUNCTIONAL REQUIREMENTS
+============================================================
+
+Each functional requirement should contain information similar to:
+
+{
+  "title": "...",
+  "description": "...",
+  "priority": "HIGH|MEDIUM|LOW",
+  "source_references": []
+}
+
+The exact schema can be improved if necessary.
+
+Do not force every requirement into a priority if the SRS provides insufficient information.
+
+If priority is inferred, clearly distinguish it as an AI recommendation/inference rather than claiming the customer explicitly specified it.
+
+============================================================
+18. NON-FUNCTIONAL REQUIREMENTS
+============================================================
+
+Identify non-functional requirements ONLY when supported by the SRS.
+
+Examples could include:
+
+- performance
+- security
+- scalability
+- availability
+- usability
+- reliability
+
+Do not invent non-functional requirements simply because they are common in software projects.
+
+If the SRS does not specify a security requirement, do not pretend that it did.
+
+If an important non-functional requirement appears missing, record it as an ambiguity or gap where appropriate.
+
+============================================================
+19. USER STORIES
+============================================================
+
+Generate user stories from actual requirements.
+
+Preferred format:
+
+"As a [user], I want [goal] so that [benefit]."
+
+Example:
+
+SRS:
+
+"Customers should be able to register using email and password."
+
+User Story:
+
+"As a customer, I want to register an account so that I can use the system."
+
+Each user story should contain:
+
+- title
+- story
+- priority
+- requirement reference
+- source references
+
+Do NOT create user stories for functionality that is not supported by the SRS.
+
+============================================================
+20. ACCEPTANCE CRITERIA
+============================================================
+
+Generate acceptance criteria from the requirement and user story.
+
+Example:
+
+Requirement:
+
+Customer registration.
+
+Acceptance criteria:
+
+- Email is required
+- Password is required
+- Valid input allows registration
+- Duplicate email is rejected
+
+Use structured records.
+
+Each acceptance criterion should contain:
+
+- description
+- user story reference
+- source references
+
+Do not invent business rules that aren't supported.
+
+============================================================
+21. CRITICAL GROUNDING RULE
+============================================================
+
+This rule is extremely important.
+
+The Requirements Analyst must NOT invent unsupported customer requirements.
+
+Distinguish:
+
+EXPLICIT:
+Directly stated in the SRS.
+
+INFERRED:
+Reasonably derived from an explicit statement.
+
+AMBIGUOUS:
+Information needed for implementation but not specified.
+
+Example:
+
+SRS:
+
+"Customers should be able to register using email and password."
+
+Valid:
+
+Functional Requirement:
+Customers can register using email and password.
+
+User Story:
+As a customer, I want to register an account so that I can use the system.
+
+Potential ambiguity:
+Password complexity requirements are not specified.
+
+Invalid:
+
+"Password must contain 8 characters, one uppercase character and one special character."
+
+unless that appears in the SRS.
+
+Do not silently turn assumptions into requirements.
+
+============================================================
+22. AMBIGUITIES
+============================================================
+
+This is an important feature.
+
+The AI should identify information that is missing or unclear.
+
+Example:
+
+Ambiguity:
+
+"Password complexity requirements are not specified."
+
+Impact:
+
+HIGH
+
+Related requirement:
+
+Customer Registration
+
+Source:
+
+requirements.pdf, page 5
+
+Other examples:
+
+- unclear user roles
+- unspecified data retention
+- unspecified authentication method
+- unclear error behavior
+- unspecified performance target
+- unclear business rules
+
+Only identify ambiguities that are genuinely relevant to the requirements.
+
+============================================================
+23. DEPENDENCIES
+============================================================
+
+Identify dependencies between requirements when supported by the SRS.
+
+Example:
+
+Requirement:
+
+Order placement
+
+depends on:
+
+User authentication
+
+Do not invent dependencies without justification.
+
+Preserve the source reference where possible.
+
+============================================================
+24. CONSTRAINTS
+============================================================
+
+Identify explicit constraints from the SRS.
+
+Examples:
+
+- technology constraints
+- platform constraints
+- regulatory constraints
+- deployment constraints
+- budget constraints
+- integration constraints
+
+Do not invent constraints.
+
+============================================================
+25. RISKS
+============================================================
+
+Identify requirement-related risks.
+
+Each risk should contain:
+
+- description
+- severity
+- related requirement
+- source reference
+
+Do not produce generic risk lists unrelated to the uploaded SRS.
+
+============================================================
+26. SOURCE TRACEABILITY
+============================================================
+
+This is a key product feature.
+
+Every generated requirement, user story, and acceptance criterion should preserve source references whenever possible.
+
+Example:
+
+User Story:
+"As a customer, I want to register..."
+
+Source:
+requirements.pdf
+
+Page:
+4
+
+The user should be able to understand:
+
+"Where did this result come from?"
+
+Never create fake page numbers.
+
+Never create fake document references.
+
+============================================================
+27. STRUCTURED LLM OUTPUT
+============================================================
+
+Do not rely on arbitrary prose parsing.
+
+Use structured Pydantic models.
+
+Create a top-level model such as:
+
+RequirementsAnalysis
+
+containing:
+
+project_summary
+
+functional_requirements
+
+non_functional_requirements
+
+user_stories
+
+acceptance_criteria
+
+ambiguities
+
+dependencies
+
+constraints
+
+risks
+
+source_references
+
+The exact schema can be improved if necessary.
+
+Validate the LLM output before saving.
+
+If validation fails:
+
+- do not save invalid results
+- log the error
+- return a useful error
+- optionally retry the structured generation once if safe
+
+Do not silently accept malformed output.
+
+============================================================
+28. ANALYSIS ENDPOINT
+============================================================
+
+Implement:
+
+POST /api/projects/{project_id}/analyze
+
+Workflow:
+
+1. Authenticate user
+2. Verify project
+3. Find the project's uploaded SRS
+4. Verify document processing completed
+5. Retrieve relevant RAG context
+6. Run Requirements Analyst AI
+7. Validate structured output
+8. Save requirements
+9. Save user stories
+10. Save acceptance criteria
+11. Save dependencies
+12. Save ambiguities
+13. Save constraints
+14. Save risks
+15. Create AgentRun record
+16. Return structured analysis
+
+Do not return fake results.
+
+============================================================
+29. GET ANALYSIS ENDPOINTS
+============================================================
+
+Implement:
+
+GET /api/projects/{project_id}/requirements
+
+GET /api/projects/{project_id}/user-stories
+
+GET /api/projects/{project_id}/acceptance-criteria
+
+GET /api/projects/{project_id}/analysis
+
+GET /api/projects/{project_id}/agent-runs
+
+These endpoints must return actual PostgreSQL data.
+
+============================================================
+30. AGENT RUN TRACKING
+============================================================
+
+Create AgentRun records.
+
+Track:
+
+- id
+- project_id
+- agent_name
+- status
+- started_at
+- completed_at
+- input_summary
+- output_summary
+- error
+
+Example actual activity:
+
+Requirements Analyst AI
+Status: PROCESSING
+
+Then:
+
+Requirements Analyst AI
+Status: COMPLETED
+
+Documents analyzed: 1
+Chunks retrieved: 8
+Requirements generated: 18
+User stories generated: 12
+Ambiguities identified: 4
+
+Only show actual values.
+
+Do not hardcode these numbers.
+
+============================================================
+31. EXISTING AI AGENTS PAGE
+============================================================
+
+The existing frontend already has an AI Agents page.
+
+DO NOT create another AI Agents page.
+
+Connect the existing Requirements Analyst AI card/section to the backend.
+
+The status must come from the backend.
+
+Possible statuses:
+
+READY
+PROCESSING
+COMPLETED
+FAILED
+
+When the user starts analysis:
+
+READY
+ ↓
+PROCESSING
+ ↓
+COMPLETED
+
+If the analysis fails:
+
+PROCESSING
+ ↓
+FAILED
+
+Do not hardcode "Completed".
+
+============================================================
+32. EXISTING DOCUMENTS PAGE
+============================================================
+
+The existing frontend already has a Documents page.
+
+DO NOT create a separate document upload page.
+
+Connect the existing upload functionality to:
+
+POST /api/projects/{project_id}/documents
+
+The user should be able to:
+
+1. Select SRS PDF
+2. Upload it
+3. See processing status
+4. See the document in the existing Documents UI
+5. Start analysis
+
+Reuse the existing UI.
+
+============================================================
+33. EXISTING PROJECT PAGE
+============================================================
+
+Use the existing Projects page.
+
+The user should be able to select/create a project and then work with its documents and requirements.
+
+Do not create a duplicate project UI.
+
+============================================================
+34. EXISTING REQUIREMENTS / AI UI
+============================================================
+
+Inspect the existing frontend and identify where Requirements Analyst results should naturally appear.
+
+If there is already a suitable component/page:
+
+USE IT.
+
+If a small missing section is required:
+
+add only the minimum necessary UI.
+
+Display:
+
+Project Summary
+
+Functional Requirements
+
+Non-Functional Requirements
+
+User Stories
+
+Acceptance Criteria
+
+Priorities
+
+Dependencies
+
+Ambiguities
+
+Constraints
+
+Risks
+
+Source References
+
+Do not redesign the entire page.
+
+============================================================
+35. FRONTEND API INTEGRATION
+============================================================
+
+Connect the existing frontend to FastAPI.
+
+Use the existing API client/service if one exists.
+
+Configure the backend URL through an environment variable.
+
+Do not hardcode production URLs.
+
+Handle:
+
+- loading
+- success
+- errors
+- empty states
+
+Use actual backend data.
+
+Do not use fake frontend mock data after backend integration.
+
+============================================================
+36. API DOCUMENTATION
+============================================================
+
+FastAPI must expose:
+
+/docs
+
+Use proper request/response schemas.
+
+Organize endpoints logically:
+
+/api/auth
+/api/projects
+/api/projects/{project_id}/documents
+/api/projects/{project_id}/rag
+/api/projects/{project_id}/requirements
+/api/projects/{project_id}/user-stories
+/api/projects/{project_id}/acceptance-criteria
+/api/projects/{project_id}/analysis
+/api/projects/{project_id}/agent-runs
+
+============================================================
+37. SECURITY
+============================================================
+
+Implement:
+
+- JWT authentication
+- password hashing
+- project authorization
+- file validation
+- upload size limits
+- input validation
+- environment variables
+- CORS configuration
+
+Never expose:
+
+- Gemini API key
+- database password
+- JWT secret
+
+to the frontend.
+
+============================================================
+38. ERROR HANDLING
+============================================================
+
+Handle:
+
+- PostgreSQL unavailable
+- missing Gemini API key
+- Gemini API failure
+- LLM timeout
+- malformed LLM output
+- invalid PDF
+- empty PDF
+- PDF extraction failure
+- embedding failure
+- ChromaDB failure
+- unauthorized request
+- invalid project
+- missing document
+- document processing failure
+
+Return useful errors.
+
+Do not silently swallow exceptions.
+
+Use proper logging.
+
+============================================================
+39. TESTING
+============================================================
+
+Create real pytest tests.
+
+Test:
+
+Authentication
+
+Project creation
+
+Project authorization
+
+PDF validation
+
+PDF extraction
+
+Chunking
+
+Embedding pipeline
+
+ChromaDB storage
+
+Project-specific retrieval
+
+RAG isolation
+
+Requirements Analyst structured output
+
+Requirements API
+
+User Story API
+
+Acceptance Criteria API
+
+Analysis endpoint
+
+AgentRun tracking
+
+Error handling
+
+IMPORTANT:
+
+Test project isolation.
+
+Example:
+
+Project A has:
+
+A-SRS.pdf
+
+Project B has:
+
+B-SRS.pdf
+
+A RAG query for Project A must NEVER return Project B chunks.
+
+Also test malformed AI output.
+
+Do not claim tests passed unless you actually run them.
+
+============================================================
+40. NO FAKE FUNCTIONALITY
+============================================================
+
+This is one of the most important requirements.
+
+DO NOT:
+
+- hardcode user stories
+- hardcode requirements
+- hardcode acceptance criteria
+- hardcode analysis
+- fake RAG
+- fake embeddings
+- fake agent status
+- fake source references
+- fake database results
+
+The system must work with a NEW SRS uploaded by the user.
+
+For example:
+
+SRS A
+
+should generate analysis specific to SRS A.
+
+Then:
+
+SRS B
+
+should generate different analysis specific to SRS B.
+
+============================================================
+41. SEED DATA
+============================================================
+
+If development seed data is useful:
+
+- clearly identify it as development/test data
+- do not present it as AI-generated
+- do not hardcode it into the Requirements Analyst
+- do not use seed data as a substitute for real analysis
+
+The final demonstration must use a real uploaded SRS.
+
+============================================================
+42. PROJECT STRUCTURE
+============================================================
+
+Create a clean backend structure similar to:
+
+backend/
+│
+├── app/
+│   ├── main.py
+│   ├── config.py
+│   │
+│   ├── api/
+│   │   ├── auth.py
+│   │   ├── projects.py
+│   │   ├── documents.py
+│   │   ├── requirements.py
+│   │   └── rag.py
+│   │
+│   ├── database/
+│   │   ├── database.py
+│   │   └── models/
+│   │
+│   ├── schemas/
+│   │
+│   ├── agents/
+│   │   └── requirements_agent.py
+│   │
+│   ├── rag/
+│   │   ├── document_processor.py
+│   │   ├── embeddings.py
+│   │   ├── vector_store.py
+│   │   └── retriever.py
+│   │
+│   ├── llm/
+│   │   ├── base.py
+│   │   └── gemini_provider.py
+│   │
+│   ├── services/
+│   │
+│   └── utils/
+│
+├── tests/
+├── requirements.txt
+├── .env.example
+└── README.md
+
+You may improve the structure if needed.
+
+Do not over-engineer.
+
+============================================================
+43. README
+============================================================
+
+Create/update README.md.
+
+Document:
+
+- AI Workforce overview
+- Requirements Analyst AI
+- architecture
+- SRS workflow
+- PDF processing
+- RAG architecture
+- ChromaDB
+- LLM provider
+- PostgreSQL
+- environment variables
+- Replit Secrets setup
+- backend setup
+- frontend setup
+- running the application
+- API documentation
+- testing
+- current limitations
+- future modules
+
+Clearly state:
+
+CURRENT IMPLEMENTATION:
+Requirements Analyst AI
+
+FUTURE:
+Project Manager AI
+Developer AI
+QA AI
+
+============================================================
+44. REPLIT SETUP
+============================================================
+
+Make the application easy to run on Replit.
+
+Tell me exactly which Secrets/environment variables I need.
+
+At minimum:
+
+DATABASE_URL
+JWT_SECRET
+GEMINI_API_KEY
+CHROMA_PERSIST_DIRECTORY
+CORS_ORIGINS
+
+If Replit provides a PostgreSQL database, use its DATABASE_URL appropriately.
+
+Do not require local Ollama for this Replit implementation.
+
+The application must fail gracefully if required environment variables are missing.
+
+============================================================
+45. STARTUP
+============================================================
+
+The backend should be runnable with a simple command.
+
+For example:
+
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+Configure Replit appropriately.
+
+The frontend should continue using its existing Vite setup.
+
+Do not break the current frontend startup process.
+
+============================================================
+46. DEVELOPMENT PROCESS
+============================================================
+
+Work incrementally.
+
+PHASE 1:
+Inspect existing frontend and repository.
+
+PHASE 2:
+Create FastAPI backend structure.
+
+PHASE 3:
+PostgreSQL + SQLAlchemy.
+
+PHASE 4:
+Authentication + Projects.
+
+PHASE 5:
+SRS upload + PDF extraction.
+
+PHASE 6:
+Embeddings + ChromaDB + RAG.
+
+PHASE 7:
+Requirements Analyst AI.
+
+PHASE 8:
+Connect Requirements Analyst to existing frontend.
+
+PHASE 9:
+Testing + error handling + documentation.
+
+After every phase:
+
+1. Run tests.
+2. Fix errors.
+3. Verify the application.
+4. Explain what was implemented.
+5. Continue.
+
+Do NOT move forward while a previous phase is broken.
+
+============================================================
+47. DO NOT IMPLEMENT FUTURE MODULES
+============================================================
+
+Do NOT create placeholder implementations for:
+
+Project Manager AI
+Developer AI
+QA AI
+
+Do not create fake agent classes simply to make the architecture look complete.
+
+It is better to have ONE excellent working Requirements Analyst than four fake agents.
+
+The future architecture can be documented, but implementation should stop at Requirements Analyst.
+
+============================================================
+48. FINAL DEMO
+============================================================
+
+The completed module must support this exact flow:
+
+1. User opens existing AI Workforce frontend.
+
+2. User logs in.
+
+3. User creates/selects a project.
+
+4. User opens the EXISTING Documents page.
+
+5. User uploads an actual SRS PDF.
+
+6. Backend validates it.
+
+7. Backend extracts actual PDF text.
+
+8. Text is chunked.
+
+9. Embeddings are generated.
+
+10. Chunks are stored in project-specific ChromaDB.
+
+11. Document status becomes COMPLETED.
+
+12. User opens the existing Requirements Analyst UI / AI Agents UI.
+
+13. User clicks Analyze Requirements.
+
+14. Backend retrieves relevant SRS context.
+
+15. Requirements Analyst AI calls the real LLM.
+
+16. Structured output is validated.
+
+17. Functional requirements are generated.
+
+18. Non-functional requirements are generated when supported.
+
+19. User stories are generated.
+
+20. Acceptance criteria are generated.
+
+21. Priorities are identified.
+
+22. Dependencies are identified.
+
+23. Ambiguities are identified.
+
+24. Constraints are identified.
+
+25. Risks are identified.
+
+26. Source references are preserved.
+
+27. Results are saved to PostgreSQL.
+
+28. AgentRun is saved.
+
+29. Existing frontend retrieves the results.
+
+30. Existing frontend displays the real results.
+
+31. Agent activity displays the actual execution state.
+
+============================================================
+49. FINAL SUCCESS CRITERIA
+============================================================
+
+Do NOT say the module is complete merely because files were created.
+
+The Requirements Analyst module is complete only if:
+
+REAL SRS
+ ↓
+REAL PDF EXTRACTION
+ ↓
+REAL CHUNKING
+ ↓
+REAL EMBEDDINGS
+ ↓
+REAL CHROMADB
+ ↓
+REAL PROJECT-SPECIFIC RAG
+ ↓
+REAL LLM
+ ↓
+REAL REQUIREMENTS ANALYST
+ ↓
+VALIDATED STRUCTURED OUTPUT
+ ↓
+POSTGRESQL
+ ↓
+EXISTING REACT FRONTEND
+
+works end-to-end.
+
+The user must be able to upload a NEW SRS and get analysis based on its actual contents.
+
+There must be NO hardcoded analysis.
+
+There must be NO fake RAG.
+
+There must be NO fake AI responses.
+
+There must be NO fake source references.
+
+============================================================
+50. IMPORTANT FINAL INSTRUCTION
+============================================================
+
+Before making changes:
+
+INSPECT THE EXISTING FRONTEND.
+
+Do not assume its structure.
+
+Do not recreate it.
+
+Do not replace it.
+
+Reuse what already exists.
+
+Then build the backend and Requirements Analyst functionality around the existing frontend.
+
+The goal is NOT to produce another AI chat application.
+
+The goal is to create a real Requirements Analyst component of AI Workforce that can take an actual customer SRS and transform it into structured, traceable software requirements.
+
+START NOW.

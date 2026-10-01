@@ -1,11 +1,17 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Menu, Search, Bell, LogOut } from 'lucide-react'
 
 function Topbar({ onMenuClick }) {
   const navigate = useNavigate()
   const [showUserMenu, setShowUserMenu] = useState(false)
-  const userName = localStorage.getItem('userName') || 'John Doe'
+  const [userName, setUserName] = useState(localStorage.getItem('userName') || 'John Doe')
+
+  useEffect(() => {
+    const sync = () => setUserName(localStorage.getItem('userName') || 'John Doe')
+    window.addEventListener('userNameChanged', sync)
+    return () => window.removeEventListener('userNameChanged', sync)
+  }, [])
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated')

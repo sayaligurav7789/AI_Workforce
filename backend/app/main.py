@@ -3,7 +3,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .api import analysis, auth, documents, project_manager, projects
+from .api import analysis, auth, dashboard, documents, project_manager, projects
 from .config import get_settings
 from .database import init_db
 
@@ -28,6 +28,7 @@ app.include_router(projects.router)
 app.include_router(documents.router)
 app.include_router(analysis.router)
 app.include_router(project_manager.router)
+app.include_router(dashboard.router)
 
 
 @app.on_event("startup")

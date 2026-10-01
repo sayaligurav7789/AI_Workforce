@@ -57,6 +57,9 @@ export const apiService = {
     getRisks: (projectId) => request(`/projects/${projectId}/risks`),
     getDependencies: (projectId) => request(`/projects/${projectId}/dependencies`),
   },
+  dashboard: {
+    getSummary: () => request('/dashboard/summary'),
+  },
   rag: {
     query: (projectId, query) =>
       request(`/projects/${projectId}/rag/query`, {

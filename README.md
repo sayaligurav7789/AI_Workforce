@@ -1,37 +1,61 @@
-# AI Workforce
+# AI-Workforce 🚀
 
-AI Workforce is an SDLC automation platform. The current implementation focuses
-on the **Requirements Analyst AI** module:
+### Multi-Agent AI Platform for Intelligent SDLC Automation
 
-`SRS PDF → page-aware extraction → Gemini embeddings → project-scoped ChromaDB RAG → structured requirements analysis → PostgreSQL → existing React UI`
+AI Workforce is an AI-powered software development platform that uses specialized AI agents to automate different stages of the Software Development Life Cycle.
 
-## Run on Replit
+## 🤖 AI Agents
 
-The project has two services:
+- **Requirements Analyst AI** – Converts SRS documents into structured requirements, user stories and acceptance criteria.
+- **Project Manager AI** – Converts requirements into tasks, epics, dependencies, sprints, milestones and risks.
+- **Developer AI** – Builds and modifies code based on project tasks.
+- **QA AI** – Validates implementations against requirements and acceptance criteria.
 
-- Frontend: Vite/React on port 5000
-- Backend: FastAPI on port 8000
+## 🧠 Core Technologies
 
-The frontend proxies `/api` requests to the backend. Replit workflows are
-configured for both services.
+- React + Vite
+- FastAPI
+- PostgreSQL
+- LangChain
+- LangGraph
+- RAG
+- ChromaDB
+- Gemini API
+- Gemini Embeddings
+- Python
+- Tailwind CSS
 
-Required Replit Secrets/environment variables:
+## 🔄 Architecture
 
-- `DATABASE_URL` — supplied by the Replit PostgreSQL database
-- `GEMINI_API_KEY` — required for PDF embeddings, RAG, and analysis
-- `JWT_SECRET` — optional when `SESSION_SECRET` is already present; use a long random value for deployments
-- `CHROMA_PERSIST_DIRECTORY` — normally `./data/chroma`
-- `CORS_ORIGINS` — comma-separated allowed origins
+```text
+SRS
+ ↓
+Requirements Analyst AI
+ ↓
+Project Manager AI
+ ↓
+Developer AI
+ ↓
+QA AI
+ ↓
+Software Delivery
+```
 
-The API documentation is available at `/docs` on the backend service. The
-existing frontend remains under `frontend/`; the backend is under `backend/`.
+## 📊 Features
 
-## Scope
+- Multi-agent SDLC automation
+- Project-specific RAG
+- AI-generated requirements and project plans
+- Dynamic project dashboard
+- Task and sprint management
+- AI agent run tracking
+- PostgreSQL-based persistent project state
+- Modern responsive SaaS UI
 
-Implemented now: authentication, projects, SRS PDF upload and validation,
-page-level PDF extraction, chunking, Gemini embeddings, project-isolated
-ChromaDB retrieval, RAG queries, structured Requirements Analyst output,
-relational persistence, traceable source references, and agent-run status.
+## 🚧 Status
 
-Future modules such as Project Manager AI, Developer AI, QA AI, Git automation,
-and external integrations are intentionally not implemented yet.
+- [x] Requirements Analyst AI
+- [x] Project Manager AI
+- [ ] Developer AI
+- [ ] QA AI
+

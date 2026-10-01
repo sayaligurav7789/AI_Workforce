@@ -343,3 +343,19 @@ class PMRisk(Base):
     related_tasks: Mapped[list[str]] = mapped_column(JSON, default=list)
 
     plan: Mapped[PMPlan] = relationship(back_populates="risks")
+
+
+class UserSettings(Base):
+    """Per-user preferences. A separate table so the existing ``users`` table is untouched.
+
+    Holds no secrets: just the theme, notification toggles and the time the password
+    was last changed through Settings.
+    """
+
+    __tablename__ = "user_settings"
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    theme: Mapped[str] = mapped_column(String(10), default="system")
+    notifications: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    password_changed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

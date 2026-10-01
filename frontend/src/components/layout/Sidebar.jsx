@@ -7,9 +7,9 @@ function Sidebar({ isOpen }) {
   const navItems = [
     { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/projects', label: 'Projects', icon: Folder },
-    { path: '/tasks', label: 'Tasks', icon: CheckSquare },
-    { path: '/agents', label: 'AI Agents', icon: Bot },
     { path: '/documents', label: 'Documents', icon: FileText },
+    { path: '/agents', label: 'AI Agents', icon: Bot },
+    { path: '/tasks', label: 'Tasks', icon: CheckSquare },
     { path: '/reports', label: 'Reports', icon: BarChart3 },
     { path: '/integrations', label: 'Integrations', icon: Zap },
     { path: '/settings', label: 'Settings', icon: Settings },
